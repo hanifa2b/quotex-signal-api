@@ -1,30 +1,22 @@
 const express = require("express");
 const router = express.Router();
 
-const { analyzeSignal } = require("../services/analyzer");
+const analyze = require("../services/analyzer");
 
 router.get("/", async (req, res) => {
+  try {
+    const asset = req.query.asset || "BTCUSDT";
+    const timeframe = req.query.timeframe || "1m";
 
-    // Demo indicator values
-    const indicators = {
-        ema20: 1.1050,
-        ema50: 1.1020,
-        rsi: 61,
-        macd: 0.0032,
-        macdSignal: 0.0021
-    };
+    const result = await analyze(asset, timeframe);
 
-    const result = analyzeSignal(indicators);
-
-    res.json({
-        success: true,
-        signal: result.signal,
-        confidence: result.confidence,
-        trend: result.trend,
-        indicators,
-        timestamp: new Date().toISOString()
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message
     });
-
+  }
 });
 
 module.exports = router;
