@@ -1,28 +1,23 @@
 const axios = require("axios");
 
-async function getMarketData(symbol = "EURUSD") {
+async function getMarketData(asset = "BTCUSDT", interval = "1m") {
+  try {
+    const url = `https://api.binance.com/api/v3/klines?symbol=${asset}&interval=${interval}&limit=100`;
 
-    return {
+    const response = await axios.get(url);
 
-        symbol: symbol,
+    return response.data.map(candle => ({
+      open: parseFloat(candle[1]),
+      high: parseFloat(candle[2]),
+      low: parseFloat(candle[3]),
+      close: parseFloat(candle[4]),
+      volume: parseFloat(candle[5])
+    }));
 
-        candles: [
-
-            {
-                open: 1.1000,
-                high: 1.1020,
-                low: 1.0990,
-                close: 1.1015
-            }
-
-        ]
-
-    };
-
+  } catch (err) {
+    console.error(err.message);
+    return [];
+  }
 }
 
-module.exports = {
-
-    getMarketData
-
-};
+module.exports = getMarketData;
